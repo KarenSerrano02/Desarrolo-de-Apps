@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>calculadora</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .tarjeta {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 320px;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    h2 {
+      color: #333333;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+
+    .campo {
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .campo label {
+      display: block;
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .campo input, .campo select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cccccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .campo input:focus, .campo select:focus {
+      border-color: #3498db;
+    }
+
+    button {
+      width: 100%;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .caja-resultado {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #27ae60;
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #e8f8f5;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      text-align: left;
+    }
+
+    .caja-resultado p {
+      margin: 5px 0;
+    }
+
+    .anterior {
+      color: #7f8c8d;
+      font-size: 0.9rem;
+      font-weight: normal;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tarjeta" id="tarjetaContenedor">
+    <h2>Calculadora DOM</h2>
+    
+    <div class="campo">
+      <label for="num1">Número 1:</label>
+      <input type="number" id="num1" placeholder="Ej. 10">
+    </div>
+
+    <div class="campo">
+      <label for="operacion">Operación:</label>
+      <select id="operacion">
+        <option value="+">Suma (+)</option>
+        <option value="-">Resta (-)</option>
+        <option value="*">Multiplicación (*)</option>
+        <option value="/">División (/)</option>
+      </select>
+    </div>
+
+    <div class="campo">
+      <label for="num2">Número 2:</label>
+      <input type="number" id="num2" placeholder="Ej. 5">
+    </div>
+
+    <button id="btnCalcular">Calcular</button>
+
+    <div class="caja-resultado">
+      <p>Resultado: <span id="textoResultado">0</span></p>
+      <p class="anterior">Resultado Anterior: <span id="textoAnterior">Ninguno</span></p>
+    </div>
+  </div>
+
+  <script>
+    // Referencias a los elementos del DOM
+    const inputNum1 = document.getElementById("num1");
+    const selectOperacion = document.getElementById("operacion");5
+    const inputNum2 = document.getElementById("num2");
+    const btnCalcular = document.getElementById("btnCalcular");
+    const textoResultado = document.getElementById("textoResultado");
+    const textoAnterior = document.getElementById("textoAnterior");
+
+    let valorAnterior = null;
+
+    btnCalcular.addEventListener("click", () => {
+      const n1 = parseFloat(inputNum1.value);
+      const n2 = parseFloat(inputNum2.value);
+      const op = selectOperacion.value;
+
+      if (isNaN(n1) || isNaN(n2)) {
+        alert("Por favor ingresa números válidos en ambos campos.");
+        return;
+      }
+
+      // Si ya hay un cálculo previo, se pasa a "Resultado Anterior"
+      if (valorAnterior !== null) {
+        textoAnterior.textContent = valorAnterior;
+      }
+
+      let res = 0;
+      switch (op) {
+        case "+": res = n1 + n2; break;
+        case "-": res = n1 - n2; break;
+        case "*": res = n1 * n2; break;
+        case "/": 
+          if (n2 === 0) {
+            alert("No se puede dividir por cero.");
+            return;
+          }
+          res = n1 / n2; 
+          break;
+      }
+
+      // Actualizar el DOM
+      textoResultado.textContent = res;
+      valorAnterior = res;
+    });
+  </script>
+
+</body>
+</html>
