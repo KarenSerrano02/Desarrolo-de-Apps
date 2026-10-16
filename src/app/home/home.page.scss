@@ -1,0 +1,88 @@
+/* Fondo negro absoluto */
+ion-content {
+  --background: #000000;
+}
+
+/* Contenedor principal responsive */
+.calculator-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: flex-end;
+  max-width: 500px;
+  margin: 0 auto; 
+  padding: 15px;
+  padding-bottom: env(safe-area-inset-bottom, 40px);
+}
+
+.calculator-grid {
+  padding: 0;
+  width: 100%;
+}
+
+/* Espaciado entre botones */
+ion-col {
+  padding: 6px; 
+}
+
+/* --- PANTALLA --- */
+.display {
+  color: white;
+  font-size: clamp(3rem, 15vw, 6rem); 
+  font-weight: 300;
+  text-align: right;
+  padding: 0 10px;
+  margin-bottom: 20px;
+  word-wrap: break-word;
+  line-height: 1.1;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.display::-webkit-scrollbar {
+  display: none;
+}
+
+/* --- TODOS LOS BOTONES (CÍRCULOS PERFECTOS) --- */
+ion-button {
+  margin: 0;
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Forzamos a que el ancho y el alto sean idénticos */
+  font-size: 2rem;
+  --border-radius: 50%; /* Lo convierte en círculo */
+  --box-shadow: none;
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+/* --- COLORES --- */
+.btn-numero {
+  --background: #333333;
+  --background-activated: #737373; 
+  --color: #ffffff;
+}
+
+.btn-funcion {
+  --background: #a5a5a5;
+  --background-activated: #d4d4d4;
+  --color: #000000; 
+}
+
+.btn-operacion {
+  --background: #ff9f0a;
+  --background-activated: #fcc773;
+  --color: #ffffff;
+  font-size: 2.5rem; 
+}
+
+/* --- BOTÓN CERO (FORMA DE PASTILLA) --- */
+.btn-cero {
+  aspect-ratio: auto; /* Anulamos el círculo solo para este botón */
+  height: 100%; /* Toma la misma altura de los botones redondos de su lado */
+  --border-radius: 100px; /* Lo convierte en pastilla */
+  
+  &::part(native) {
+    justify-content: flex-start;
+    padding-left: 25px; /* Mueve el '0' un poco hacia la izquierda */
+  }
+}

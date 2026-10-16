@@ -1,0 +1,49 @@
+<ion-content [fullscreen]="true">
+  <div class="calculator-wrapper">
+    
+    <!-- Pantalla -->
+    <div class="display">
+      {{ pantalla }}
+    </div>
+
+    <!-- Teclado iOS Responsive -->
+    <ion-grid class="calculator-grid">
+      <ion-row>
+        <ion-col><ion-button class="btn-funcion" (click)="limpiar()">C</ion-button></ion-col>
+        <ion-col><ion-button class="btn-funcion" (click)="agregar('(')">(</ion-button></ion-col>
+        <ion-col><ion-button class="btn-funcion" (click)="agregar(')')">)</ion-button></ion-col>
+        <!-- OJO: Aquí enviamos el símbolo bonito ÷ -->
+        <ion-col><ion-button class="btn-operacion" (click)="agregar('÷')">÷</ion-button></ion-col>
+      </ion-row>
+      
+      <ion-row>
+        <ion-col><ion-button class="btn-numero" (click)="agregar('7')">7</ion-button></ion-col>
+        <ion-col><ion-button class="btn-numero" (click)="agregar('8')">8</ion-button></ion-col>
+        <ion-col><ion-button class="btn-numero" (click)="agregar('9')">9</ion-button></ion-col>
+        <!-- OJO: Aquí enviamos el símbolo bonito × -->
+        <ion-col><ion-button class="btn-operacion" (click)="agregar('×')">×</ion-button></ion-col>
+      </ion-row>
+      
+      <ion-row>
+        <ion-col><ion-button class="btn-numero" (click)="agregar('4')">4</ion-button></ion-col>
+        <ion-col><ion-button class="btn-numero" (click)="agregar('5')">5</ion-button></ion-col>
+        <ion-col><ion-button class="btn-numero" (click)="agregar('6')">6</ion-button></ion-col>
+        <ion-col><ion-button class="btn-operacion" (click)="agregar('-')">-</ion-button></ion-col>
+      </ion-row>
+      
+      <ion-row>
+        <ion-col><ion-button class="btn-numero" (click)="agregar('1')">1</ion-button></ion-col>
+        <ion-col><ion-button class="btn-numero" (click)="agregar('2')">2</ion-button></ion-col>
+        <ion-col><ion-button class="btn-numero" (click)="agregar('3')">3</ion-button></ion-col>
+        <ion-col><ion-button class="btn-operacion" (click)="agregar('+')">+</ion-button></ion-col>
+      </ion-row>
+      
+      <ion-row>
+        <ion-col size="6"><ion-button class="btn-numero btn-cero" (click)="agregar('0')">0</ion-button></ion-col>
+        <ion-col><ion-button class="btn-numero" (click)="agregar('.')">.</ion-button></ion-col>
+        <ion-col><ion-button class="btn-operacion" (click)="calcular()">=</ion-button></ion-col>
+      </ion-row>
+    </ion-grid>
+
+  </div>
+</ion-content>
