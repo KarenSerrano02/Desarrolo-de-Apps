@@ -1,0 +1,40 @@
+.wrap {
+  max-width: 420px;
+  margin: 0 auto;
+  padding-top: 12vh;
+
+  h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    margin: 0 0 4px;
+  }
+
+  .sub {
+    margin: 0 0 32px;
+    color: var(--ion-color-medium);
+  }
+
+  ion-item {
+    --padding-start: 0;
+    margin-bottom: 12px;
+  }
+
+  ion-button {
+    margin-top: 24px;
+    --border-radius: 8px;
+  }
+}
+
+.links {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+  font-size: 0.9rem;
+
+  a {
+    color: var(--ion-text-color);
+    text-decoration: underline;
+  }
+}

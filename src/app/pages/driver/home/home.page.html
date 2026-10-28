@@ -1,0 +1,13 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Conductor</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="auth.logout()">Cerrar sesión</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <h2>Hola, {{ user?.name }}</h2>
+  <p>Sesión iniciada como conductor. Aquí irán las solicitudes de viaje.</p>
+</ion-content>
