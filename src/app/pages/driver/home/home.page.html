@@ -1,0 +1,58 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Conductor</ion-title>
+    <ion-buttons slot="end"><ion-button (click)="auth.logout()">Salir</ion-button></ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <main class="screen">
+    <section class="card">
+      <div class="row">
+        <div>
+          <h3>{{ online() ? 'En línea' : 'Desconectado' }}</h3>
+          <span class="muted">{{ user?.name }}</span>
+        </div>
+        <button class="btn sm" [class.success]="!online()" [class.ghost]="online()" (click)="toggle()" [disabled]="busy() || !!trip()">
+          {{ online() ? 'Desconectarme' : 'Conectarme' }}
+        </button>
+      </div>
+    </section>
+
+    @if (trip(); as t) {
+      <section class="card">
+        <div class="row">
+          <span class="badge">{{ label[t.status] || t.status }}</span>
+          <b>{{ cop(t.estimated_fare) }}</b>
+        </div>
+        <p><span class="stepper"><i class="dot a"></i>{{ t.origin_name }}</span></p>
+        <p><span class="stepper"><i class="dot b"></i>{{ t.destination_name }}</span></p>
+        @if (t.client) { <p class="muted">Pasajero: {{ t.client.name }} · {{ t.client.phone }}</p> }
+
+        @if (t.status === 'assigned') {
+          <button class="btn" (click)="step('arrive')" [disabled]="busy()">Llegué al punto de recogida</button>
+        } @else if (t.status === 'driver_arrived') {
+          <button class="btn" (click)="step('start')" [disabled]="busy()">Iniciar viaje</button>
+        } @else if (t.status === 'in_progress') {
+          <label class="field"><span>Distancia real (km)</span><input type="number" step="0.01" [(ngModel)]="km" /></label>
+          <label class="field"><span>Duración real (min)</span><input type="number" [(ngModel)]="min" /></label>
+          <button class="btn success" (click)="step('complete')" [disabled]="busy()">Finalizar viaje</button>
+        }
+      </section>
+    } @else if (online()) {
+      <h2 class="title">Solicitudes cercanas</h2>
+      @for (r of requests(); track r.id) {
+        <section class="card">
+          <div class="row"><b>{{ cop(r.estimated_fare) }}</b><span class="muted">{{ r.estimated_distance_km }} km</span></div>
+          <p><span class="stepper"><i class="dot a"></i>{{ r.origin_name }}</span></p>
+          <p><span class="stepper"><i class="dot b"></i>{{ r.destination_name }}</span></p>
+          <button class="btn" (click)="accept(r)" [disabled]="busy()">Aceptar</button>
+        </section>
+      } @empty {
+        <p class="empty"><ion-spinner name="dots"></ion-spinner><br />Esperando solicitudes…</p>
+      }
+    } @else {
+      <p class="empty">Conéctate para recibir solicitudes de viaje.</p>
+    }
+  </main>
+</ion-content>

@@ -1,0 +1,95 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Hola, {{ user?.name?.split(' ')?.[0] }}</ion-title>
+    <ion-buttons slot="end"><ion-button (click)="auth.logout()">Salir</ion-button></ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <main class="screen">
+    <div class="tabs" role="tablist">
+      <button role="tab" [class.on]="tab() === 'viaje'" (click)="setTab('viaje')">Mi viaje</button>
+      <button role="tab" [class.on]="tab() === 'historial'" (click)="setTab('historial')">Historial</button>
+    </div>
+
+    @if (tab() === 'viaje') {
+      @if (loading()) {
+        <div class="empty"><ion-spinner name="dots"></ion-spinner></div>
+      } @else if (ratingTripId) {
+        <section class="card">
+          <h3>¿Cómo fue tu viaje?</h3>
+          <div class="stars" role="radiogroup" aria-label="Calificación">
+            @for (n of [1, 2, 3, 4, 5]; track n) {
+              <button type="button" [class.on]="n <= score" (click)="score = n" [attr.aria-label]="n + ' estrellas'">★</button>
+            }
+          </div>
+          <label class="field"><span>Comentario (opcional)</span><textarea rows="3" [(ngModel)]="comment"></textarea></label>
+          <label class="row"><span>Reportar un incidente</span><input type="checkbox" [(ngModel)]="incident" /></label>
+          <button class="btn" style="margin-top: 16px" (click)="sendRating()" [disabled]="busy()">Enviar calificación</button>
+          <button class="btn ghost" style="margin-top: 8px" (click)="skipRating()">Omitir</button>
+        </section>
+      } @else if (active(); as a) {
+        <section class="card">
+          <div class="row">
+            <span class="badge">{{ label[a.data.status] || a.data.status }}</span>
+            <b>{{ cop(a.data.estimated_fare) }}</b>
+          </div>
+          @if (a.type === 'request') {
+            <p class="muted">Buscando conductores disponibles…</p>
+            <p><span class="stepper"><i class="dot a"></i>{{ a.data.origin_name }}</span></p>
+            <p><span class="stepper"><i class="dot b"></i>{{ a.data.destination_name }}</span></p>
+          } @else {
+            <h3 style="margin-top: 12px">{{ a.data.driver?.user?.name }}</h3>
+            <p class="muted">★ {{ a.data.driver?.rating_average }} · {{ a.data.driver?.user?.phone }}</p>
+            <p>
+              {{ a.data.vehicle?.brand }} {{ a.data.vehicle?.model }} · {{ a.data.vehicle?.color }}<br />
+              <b>{{ a.data.vehicle?.plate }}</b>
+            </p>
+          }
+          @if (a.data.status !== 'in_progress') {
+            <button class="btn danger" (click)="cancel()" [disabled]="busy()">Cancelar</button>
+          }
+        </section>
+      } @else {
+        <h1 class="title">¿A dónde vas?</h1>
+        <label class="field"><span>Origen</span>
+          <select [(ngModel)]="originIdx" (change)="calc()">
+            <option value="" disabled>Selecciona…</option>
+            @if (gps) { <option value="gps">Mi ubicación</option> }
+            @for (p of places; track $index) { <option [value]="$index">{{ p.name }}</option> }
+          </select>
+        </label>
+        <button class="btn ghost sm" (click)="useGps()">Usar mi ubicación</button>
+        <label class="field"><span>Destino</span>
+          <select [(ngModel)]="destIdx" (change)="calc()">
+            <option value="" disabled>Selecciona…</option>
+            @for (p of places; track $index) { <option [value]="$index">{{ p.name }}</option> }
+          </select>
+        </label>
+
+        @if (estimate(); as e) {
+          <section class="card">
+            <div class="price">{{ cop(e.estimated_fare) }}</div>
+            <p class="muted">{{ e.distance_km }} km · ~{{ e.duration_min }} min</p>
+          </section>
+        }
+        <button class="btn" (click)="request()" [disabled]="!estimate() || busy()">
+          @if (busy()) { <ion-spinner name="dots"></ion-spinner> } @else { Pedir viaje }
+        </button>
+      }
+    } @else {
+      @for (t of trips(); track t.id) {
+        <section class="card">
+          <div class="row">
+            <span class="badge" [class.ok]="t.status === 'completed'" [class.bad]="t.status === 'cancelled'">{{ label[t.status] || t.status }}</span>
+            <b>{{ cop(t.final_fare ?? t.estimated_fare) }}</b>
+          </div>
+          <p class="muted">{{ t.driver?.user?.name }} · {{ t.vehicle?.plate }}</p>
+          @if (t.status === 'completed') { <button class="btn ghost sm" (click)="rateOld(t.id)">Calificar</button> }
+        </section>
+      } @empty {
+        <p class="empty">Aún no tienes viajes.</p>
+      }
+    }
+  </main>
+</ion-content>

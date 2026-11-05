@@ -1,0 +1,88 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Administración</ion-title>
+    <ion-buttons slot="end"><ion-button (click)="auth.logout()">Salir</ion-button></ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <main class="screen">
+    <div class="tabs" role="tablist">
+      <button role="tab" [class.on]="tab() === 'resumen'" (click)="setTab('resumen')">Resumen</button>
+      <button role="tab" [class.on]="tab() === 'conductores'" (click)="setTab('conductores')">Conductores</button>
+      <button role="tab" [class.on]="tab() === 'tarifas'" (click)="setTab('tarifas')">Tarifas</button>
+      <button role="tab" [class.on]="tab() === 'viajes'" (click)="setTab('viajes')">Viajes</button>
+    </div>
+
+    @if (loading()) {
+      <div class="empty"><ion-spinner name="dots"></ion-spinner></div>
+    } @else {
+      @switch (tab()) {
+        @case ('resumen') {
+          @if (stats(); as s) {
+            <div class="kpis">
+              <div class="kpi"><b>{{ cop(s.total_revenue) }}</b><span>Ingresos</span></div>
+              <div class="kpi"><b>{{ s.completed_trips }}</b><span>Viajes completados</span></div>
+              <div class="kpi"><b>{{ s.active_trips }}</b><span>Viajes activos</span></div>
+              <div class="kpi"><b>{{ s.pending_requests }}</b><span>Solicitudes pendientes</span></div>
+              <div class="kpi"><b>{{ s.total_clients }}</b><span>Clientes</span></div>
+              <div class="kpi"><b>{{ s.approved_drivers }}/{{ s.total_drivers }}</b><span>Conductores aprobados</span></div>
+              <div class="kpi"><b>{{ s.pending_drivers }}</b><span>Por aprobar</span></div>
+              <div class="kpi"><b>{{ s.cancelled_trips }}</b><span>Cancelados</span></div>
+            </div>
+          }
+        }
+        @case ('conductores') {
+          <label class="field"><span>Filtrar por estado</span>
+            <select [(ngModel)]="filter" (change)="loadDrivers()">
+              <option value="">Todos</option>
+              <option value="pending">Pendientes</option>
+              <option value="approved">Aprobados</option>
+              <option value="rejected">Rechazados</option>
+              <option value="suspended">Suspendidos</option>
+            </select>
+          </label>
+          @for (d of drivers(); track d.id) {
+            <section class="card">
+              <div class="row"><h3>{{ d.user?.name }}</h3><span class="badge" [class]="badge(d.approval_status)">{{ d.approval_status }}</span></div>
+              <p class="muted">{{ d.user?.email }}<br />Licencia {{ d.license_number }} · ★ {{ d.rating_average }}</p>
+              @if (d.vehicles?.[0]; as v) { <p class="muted">{{ v.brand }} {{ v.model }} {{ v.year }} · {{ v.plate }}</p> }
+              <div class="row" style="gap: 8px">
+                @if (d.approval_status !== 'approved') { <button class="btn success sm" (click)="decide(d, 'approved')">Aprobar</button> }
+                @if (d.approval_status === 'approved') { <button class="btn ghost sm" (click)="decide(d, 'suspended')">Suspender</button> }
+                @if (d.approval_status === 'pending') { <button class="btn danger sm" (click)="decide(d, 'rejected')">Rechazar</button> }
+              </div>
+            </section>
+          } @empty { <p class="empty">Sin conductores.</p> }
+        }
+        @case ('tarifas') {
+          @for (f of fares(); track f.id) {
+            <section class="card">
+              <div class="row"><h3>{{ f.name }}</h3><span class="badge" [class.ok]="f.active">{{ f.active ? 'Activa' : 'Inactiva' }}</span></div>
+              <p class="muted">Base {{ cop(f.base_fare) }} · {{ cop(f.price_per_km) }}/km · {{ cop(f.price_per_minute) }}/min<br />Mínima {{ cop(f.minimum_fare) }} · x{{ f.surge_multiplier }}</p>
+            </section>
+          }
+          <section class="card">
+            <h3>Nueva tarifa</h3>
+            <label class="field"><span>Nombre</span><input [(ngModel)]="newFare.name" /></label>
+            <label class="field"><span>Tarifa base</span><input type="number" [(ngModel)]="newFare.base_fare" /></label>
+            <label class="field"><span>Precio por km</span><input type="number" [(ngModel)]="newFare.price_per_km" /></label>
+            <label class="field"><span>Precio por minuto</span><input type="number" [(ngModel)]="newFare.price_per_minute" /></label>
+            <label class="field"><span>Tarifa mínima</span><input type="number" [(ngModel)]="newFare.minimum_fare" /></label>
+            <label class="field"><span>Multiplicador</span><input type="number" step="0.1" [(ngModel)]="newFare.surge_multiplier" /></label>
+            <label class="row"><span>Activar</span><input type="checkbox" [(ngModel)]="newFare.active" /></label>
+            <button class="btn" style="margin-top: 16px" (click)="saveFare()" [disabled]="!newFare.name.trim()">Guardar tarifa</button>
+          </section>
+        }
+        @case ('viajes') {
+          @for (t of trips(); track t.id) {
+            <section class="card">
+              <div class="row"><span class="badge" [class]="badge(t.status)">{{ label[t.status] || t.status }}</span><b>{{ cop(t.final_fare ?? t.estimated_fare) }}</b></div>
+              <p class="muted">Viaje #{{ t.id }} · {{ t.client?.name }} → {{ t.driver?.user?.name }}</p>
+            </section>
+          } @empty { <p class="empty">Sin viajes.</p> }
+        }
+      }
+    }
+  </main>
+</ion-content>
