@@ -1,0 +1,32 @@
+<ion-content class="ion-padding">
+  <main class="wrap">
+    <h1>Crear cuenta</h1>
+
+    <ion-segment [value]="role" (ionChange)="setRole($event.detail.value)">
+      <ion-segment-button value="client"><ion-label>Pasajero</ion-label></ion-segment-button>
+      <ion-segment-button value="driver"><ion-label>Conductor</ion-label></ion-segment-button>
+    </ion-segment>
+
+    <ion-item lines="full"><ion-input label="Nombre completo" labelPlacement="floating" [(ngModel)]="form.name"></ion-input></ion-item>
+    <ion-item lines="full"><ion-input label="Correo" labelPlacement="floating" type="email" [(ngModel)]="form.email"></ion-input></ion-item>
+    <ion-item lines="full"><ion-input label="Teléfono" labelPlacement="floating" type="tel" [(ngModel)]="form.phone"></ion-input></ion-item>
+    <ion-item lines="full"><ion-input label="Contraseña" labelPlacement="floating" type="password" [(ngModel)]="form.password"></ion-input></ion-item>
+
+    @if (role === 'driver') {
+      <h2>Datos del conductor</h2>
+      <ion-item lines="full"><ion-input label="Número de licencia" labelPlacement="floating" [(ngModel)]="form.license_number"></ion-input></ion-item>
+      <ion-item lines="full"><ion-input label="Placa" labelPlacement="floating" [(ngModel)]="form.plate"></ion-input></ion-item>
+      <ion-item lines="full"><ion-input label="Marca" labelPlacement="floating" [(ngModel)]="form.brand"></ion-input></ion-item>
+      <ion-item lines="full"><ion-input label="Modelo" labelPlacement="floating" [(ngModel)]="form.model"></ion-input></ion-item>
+      <ion-item lines="full"><ion-input label="Año" labelPlacement="floating" type="number" [(ngModel)]="form.year"></ion-input></ion-item>
+      <ion-item lines="full"><ion-input label="Capacidad de pasajeros" labelPlacement="floating" type="number" [(ngModel)]="form.capacity"></ion-input></ion-item>
+      <ion-item lines="full"><ion-input label="Color" labelPlacement="floating" [(ngModel)]="form.color"></ion-input></ion-item>
+    }
+
+    <ion-button expand="block" color="primary" size="large" (click)="submit()" [disabled]="loading">
+      @if (loading) { <ion-spinner name="dots"></ion-spinner> } @else { Crear cuenta }
+    </ion-button>
+
+    <nav class="links"><a routerLink="/login">Ya tengo cuenta</a></nav>
+  </main>
+</ion-content>

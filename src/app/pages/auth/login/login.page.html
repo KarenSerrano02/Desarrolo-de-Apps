@@ -1,0 +1,37 @@
+<ion-content class="ion-padding">
+  <main class="wrap">
+    <h1>Uber</h1>
+    <p class="sub">Inicia sesión para pedir o conducir.</p>
+
+    <ion-item lines="full">
+      <ion-input
+        label="Correo o teléfono"
+        labelPlacement="floating"
+        autocomplete="username"
+        [(ngModel)]="login"
+      ></ion-input>
+    </ion-item>
+
+    <ion-item lines="full">
+      <ion-input
+        label="Contraseña"
+        labelPlacement="floating"
+        type="password"
+        autocomplete="current-password"
+        [(ngModel)]="password"
+        (keyup.enter)="submit()"
+      >
+        <ion-input-password-toggle slot="end"></ion-input-password-toggle>
+      </ion-input>
+    </ion-item>
+
+    <ion-button expand="block" color="primary" size="large" (click)="submit()" [disabled]="loading || !login || !password">
+      @if (loading) { <ion-spinner name="dots"></ion-spinner> } @else { Entrar }
+    </ion-button>
+
+    <nav class="links">
+      <a routerLink="/forgot-password">¿Olvidaste tu contraseña?</a>
+      <a routerLink="/register">Crear cuenta</a>
+    </nav>
+  </main>
+</ion-content>
