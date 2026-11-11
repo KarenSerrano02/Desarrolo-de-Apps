@@ -36,8 +36,4 @@ export const routes: Routes = [
       import('./pages/admin/dashboard/dashboard.page').then((m) => m.DashboardPage),
   },
   { path: '**', redirectTo: 'login' },
-  {
-    path: 'estimate',
-    loadComponent: () => import('./pages/estimate/estimate.page').then( m => m.EstimatePage)
-  },
 ];

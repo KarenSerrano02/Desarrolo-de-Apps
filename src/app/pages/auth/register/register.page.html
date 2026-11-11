@@ -23,7 +23,7 @@
       <ion-item lines="full"><ion-input label="Color" labelPlacement="floating" [(ngModel)]="form.color"></ion-input></ion-item>
     }
 
-    <ion-button expand="block" color="dark" size="large" (click)="submit()" [disabled]="loading">
+    <ion-button expand="block" color="primary" size="large" (click)="submit()" [disabled]="loading">
       @if (loading) { <ion-spinner name="dots"></ion-spinner> } @else { Crear cuenta }
     </ion-button>
 

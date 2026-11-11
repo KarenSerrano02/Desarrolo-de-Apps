@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { IonButton, IonContent, IonInput, IonItem, IonSpinner, ToastController } from '@ionic/angular/standalone';
+import { IonButton, IonContent, IonInput, IonItem, IonSpinner, ToastController } from '@ionic/angular';
 import { AuthService } from '../../../core/services/auth.service';
 import { getErrorMessage } from '../../../core/utils/http-error';
 

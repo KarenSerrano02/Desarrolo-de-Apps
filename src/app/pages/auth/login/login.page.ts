@@ -10,7 +10,7 @@ import {
   IonItem,
   IonSpinner,
   ToastController,
-} from '@ionic/angular/standalone';
+} from '@ionic/angular';
 import { AuthService } from '../../../core/services/auth.service';
 import { getErrorMessage } from '../../../core/utils/http-error';
 

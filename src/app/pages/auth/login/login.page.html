@@ -25,7 +25,7 @@
       </ion-input>
     </ion-item>
 
-    <ion-button expand="block" color="dark" size="large" (click)="submit()" [disabled]="loading || !login || !password">
+    <ion-button expand="block" color="primary" size="large" (click)="submit()" [disabled]="loading || !login || !password">
       @if (loading) { <ion-spinner name="dots"></ion-spinner> } @else { Entrar }
     </ion-button>
 

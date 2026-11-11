@@ -1,13 +1,125 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Pasajero</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="auth.logout()">Cerrar sesión</ion-button>
-    </ion-buttons>
+    <ion-title>Hola, {{ user?.name?.split(' ')?.[0] }}</ion-title>
+    <ion-buttons slot="end"><ion-button (click)="auth.logout()">Salir</ion-button></ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <h2>Hola, {{ user?.name }}</h2>
-  <p>Sesión iniciada como pasajero. Aquí irá el mapa para pedir tu viaje.</p>
+<ion-content>
+  <main class="screen">
+    <div class="tabs" role="tablist">
+      <button role="tab" [class.on]="tab() === 'viaje'" (click)="setTab('viaje')">Mi viaje</button>
+      <button role="tab" [class.on]="tab() === 'historial'" (click)="setTab('historial')">Historial</button>
+    </div>
+
+    @if (tab() === 'viaje') {
+      @if (loading()) {
+        <div class="empty"><ion-spinner name="dots"></ion-spinner></div>
+      } @else if (ratingTripId) {
+        <section class="card">
+          <h3>¿Cómo fue tu viaje?</h3>
+          <div class="stars" role="radiogroup" aria-label="Calificación">
+            @for (n of [1, 2, 3, 4, 5]; track n) {
+              <button type="button" [class.on]="n <= score" (click)="score = n" [attr.aria-label]="n + ' estrellas'">★</button>
+            }
+          </div>
+          <label class="field"><span>Comentario (opcional)</span><textarea rows="3" [(ngModel)]="comment"></textarea></label>
+          <label class="row"><span>Reportar un incidente</span><input type="checkbox" [(ngModel)]="incident" /></label>
+          <button class="btn" style="margin-top: 16px" (click)="sendRating()" [disabled]="busy()">Enviar calificación</button>
+          <button class="btn ghost" style="margin-top: 8px" (click)="skipRating()">Omitir</button>
+        </section>
+      } @else if (active(); as a) {
+        <app-route-map [origin]="activeOrigin()" [dest]="activeDest()" [driver]="driverPos()" height="240px"></app-route-map>
+        <section class="card">
+          <div class="row">
+            <span class="badge">{{ label[a.data.status] || a.data.status }}</span>
+            <b>{{ cop(a.data.estimated_fare) }}</b>
+          </div>
+          <p class="muted" style="margin: 8px 0 0">Pago: {{ payLabel(a.data.payment_method || payment) }}</p>
+          @if (a.type === 'request') {
+            <p class="muted">Buscando conductores disponibles…</p>
+            <p><span class="stepper"><i class="dot a"></i>{{ a.data.origin_name }}</span></p>
+            <p><span class="stepper"><i class="dot b"></i>{{ a.data.destination_name }}</span></p>
+          } @else {
+            <h3 style="margin-top: 12px">{{ a.data.driver?.user?.name }}</h3>
+            <p class="muted">★ {{ a.data.driver?.rating_average }} · {{ a.data.driver?.user?.phone }}</p>
+            <p>
+              {{ a.data.vehicle?.brand }} {{ a.data.vehicle?.model }} · {{ a.data.vehicle?.color }}<br />
+              <b>{{ a.data.vehicle?.plate }}</b>
+            </p>
+          }
+          @if (a.data.status !== 'in_progress') {
+            <button class="btn danger" (click)="cancel()" [disabled]="busy()">Cancelar</button>
+          }
+        </section>
+      } @else {
+        <app-route-map [origin]="origin" [dest]="dest" [pickable]="true" (picked)="onMapPick($event)" height="260px"></app-route-map>
+        <p class="muted" style="margin: 8px 2px">Toca el mapa para marcar el punto seleccionado ({{ field === 'origin' ? 'origen' : 'destino' }}) o escribe una dirección.</p>
+
+        <div class="field">
+          <span>Origen</span>
+          <input placeholder="¿Dónde te recogemos?" [(ngModel)]="query.origin" (focus)="focusField('origin')" (input)="onType('origin')" [class.sel]="field === 'origin'" />
+        </div>
+        <button class="btn ghost sm" (click)="useGps()">Usar mi ubicación</button>
+        <div class="field">
+          <span>Destino</span>
+          <input placeholder="¿A dónde vas?" [(ngModel)]="query.dest" (focus)="focusField('dest')" (input)="onType('dest')" [class.sel]="field === 'dest'" />
+        </div>
+
+        @if (results().length) {
+          <ul class="results">
+            @for (r of results(); track $index) { <li><button type="button" (click)="choose(r)">{{ r.name }}</button></li> }
+          </ul>
+        }
+
+        @if (estimate(); as e) {
+          <section class="card">
+            <div class="row">
+              <div>
+                <div class="price">{{ cop(e.estimated_fare) }}</div>
+                <p class="muted" style="margin: 0">{{ e.distance_km }} km · ~{{ e.duration_min }} min</p>
+              </div>
+              <button class="btn ghost sm" (click)="swap()" aria-label="Invertir origen y destino">⇅</button>
+            </div>
+            @if (breakdown(); as b) {
+              <div style="margin-top: 12px">
+                <div class="line"><span>Tarifa base</span><span>{{ cop(b.base) }}</span></div>
+                <div class="line"><span>Distancia ({{ e.distance_km }} km)</span><span>{{ cop(b.km) }}</span></div>
+                <div class="line"><span>Tiempo (~{{ e.duration_min }} min)</span><span>{{ cop(b.min) }}</span></div>
+                @if (b.surge !== 1) { <div class="line"><span>Demanda x{{ b.surge }}</span><span></span></div> }
+                @if (b.raw < b.minimum) { <div class="line"><span>Se aplica tarifa mínima</span><span>{{ cop(b.minimum) }}</span></div> }
+                <div class="line total"><span>Total estimado</span><span>{{ cop(e.estimated_fare) }}</span></div>
+              </div>
+            }
+          </section>
+
+          <h3 style="margin: 16px 0 4px">Método de pago</h3>
+          <div class="pay" role="radiogroup" aria-label="Método de pago">
+            @for (m of methods; track m.id) {
+              <button type="button" role="radio" [attr.aria-checked]="payment === m.id" [class.on]="payment === m.id" (click)="setPayment(m.id)">
+                {{ m.label }}<small>{{ m.hint }}</small>
+              </button>
+            }
+          </div>
+        }
+
+        <button class="btn" style="margin-top: 12px" (click)="request()" [disabled]="!estimate() || busy()">
+          @if (busy()) { <ion-spinner name="dots"></ion-spinner> } @else { Pedir viaje @if (estimate(); as e) { · {{ cop(e.estimated_fare) }} } }
+        </button>
+      }
+    } @else {
+      @for (t of trips(); track t.id) {
+        <section class="card">
+          <div class="row">
+            <span class="badge" [class.ok]="t.status === 'completed'" [class.bad]="t.status === 'cancelled'">{{ label[t.status] || t.status }}</span>
+            <b>{{ cop(t.final_fare ?? t.estimated_fare) }}</b>
+          </div>
+          <p class="muted">{{ t.driver?.user?.name }} · {{ t.vehicle?.plate }}</p>
+          @if (t.status === 'completed') { <button class="btn ghost sm" (click)="rateOld(t.id)">Calificar</button> }
+        </section>
+      } @empty {
+        <p class="empty">Aún no tienes viajes.</p>
+      }
+    }
+  </main>
 </ion-content>
